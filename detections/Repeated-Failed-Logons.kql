@@ -1,0 +1,45 @@
+
+/*
+Detection: Repeated Failed Windows Logons
+Investigation: IR-002
+Platform: Microsoft Defender Advanced Hunting
+Data Source: DeviceLogonEvents
+
+Purpose:
+Identify three or more failed authentication attempts
+against the same account on the same endpoint within
+a rolling five-minute window.
+
+MITRE ATT&CK: T1110 - Brute Force
+
+Validation:
+Positive test: 3 failed logons in 27 seconds
+Negative test: Widely spaced failures did not trigger
+
+Note:
+This is a lab detection query, not an automated alert.
+Production use requires tuning and false-positive review.
+*/
+
+let FailedLogons =
+    DeviceLogonEvents
+    | where Timestamp > ago(24h)
+    | where DeviceName =~ "soc-win11-01"
+    | where ActionType == "LogonFailed"
+    | project Timestamp, DeviceName, AccountName,
+              LogonType, RemoteIP, FailureReason;
+FailedLogons
+| join kind=inner (
+    FailedLogons
+    | project WindowStart = Timestamp,
+              DeviceName, AccountName
+) on DeviceName, AccountName
+| where Timestamp between (WindowStart .. WindowStart + 5m)
+| summarize
+    FailedAttempts = count(),
+    LastAttempt = max(Timestamp),
+    LogonTypes = make_set(LogonType),
+    SourceIPs = make_set(RemoteIP)
+    by DeviceName, AccountName, WindowStart
+| where FailedAttempts >= 3
+| order by WindowStart desc
