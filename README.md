@@ -39,11 +39,11 @@ Conducted a controlled PowerShell execution simulation and investigated the resu
 - [x] Onboard endpoint to Microsoft Defender for Endpoint
 - [x] Validate endpoint telemetry collection
 - [x] Investigate encoded PowerShell execution
-- [ ] Build Active Directory lab environment
-- [ ] Configure domain authentication logging
-- [ ] Develop additional KQL detections
-- [ ] Investigate simulated authentication attacks
-- [ ] Create SOC investigation dashboards
+- [x] Build Active Directory lab environment
+- [x] Configure domain authentication logging
+- [x] Develop additional KQL detections
+- [x] Investigate simulated authentication attacks
+- [x] Create SOC investigation dashboards
 
 ## Disclaimer
 
